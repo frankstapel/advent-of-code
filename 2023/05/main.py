@@ -113,37 +113,7 @@ def b(content: [str]) -> None:
                 handled_seeds.append(seed)
         seeds = handled_seeds
 
-    # print(seeds)
-
     print(min([correct_seed['start'] for correct_seed in seeds]))
-
-    # # Determine which seeds that are left over are in the original sets
-    # correct_seeds = []
-    # while seeds:
-    #     seed = seeds.pop()
-    #     seed_handled = False
-    #     for initial_seed in initial_seeds:
-    #         if seed_handled:
-    #             break
-    #         if initial_seed['start'] <= seed['start'] and seed['start'] <= initial_seed['end']:
-    #             if initial_seed['start'] <= seed['end'] and seed['end'] <= initial_seed['end']:
-    #                 # Seed fits in the initial seed!
-    #                 correct_seeds.append(seed)
-    #             else:
-    #                 # The seed is too large, split it! TODO
-    #                 seeds.append({
-    #                     'start': seed['start'],
-    #                     'end': initial_seed['end']
-    #                 })
-    #                 seeds.append({
-    #                     'start': initial_seed['end'] + 1,
-    #                     'end': seed['end']
-    #                 })
-    #             seed_handled = True
-    # print(correct_seeds)
-
-    # # Determine the minimal seed
-    # print(min([correct_seed['start'] for correct_seed in correct_seeds]))
 
 
 ############################
@@ -174,53 +144,3 @@ if __name__ == '__main__':
         b(content)
 
     print('')
-
-    # handled_seeds = []
-    # while seeds:
-    #     seed = seeds.pop()
-    #     valid_seed = True
-    #     print(seed)
-    #     for map in maps:
-    #         if not valid_seed:
-    #             break
-    #         map_solved = False
-    #         for instruction in map:
-    #             if not valid_seed:
-    #                 break
-    #             if instruction['start'] <= seed['start'] and seed['start'] < instruction['end'] and not map_solved:
-    #                 if instruction['start'] <= seed['end'] and seed['end'] < instruction['end']:
-    #                     # Seed is small enought, convert it! TODO
-    #                     map_solved = True
-    #                 else:
-    #                     # The seed is too large, split it! TODO
-    #                     valid_seed = False
-    #     handled_seeds.append(seed)
-
-    # for map in maps:
-    #     handled_seeds = []
-    #     while seeds:
-    #         seed = seeds.pop()
-    #         seed_handled = False
-    #         for instruction in map:
-    #             if seed_handled:
-    #                 break
-    #             if instruction['start'] <= seed['start'] and seed['start'] <= instruction['end']:
-    #                 if instruction['start'] <= seed['end'] and seed['end'] <= instruction['end']:
-    #                     # Seed is small enought, convert it!
-    #                     seed['start'] += instruction['mutation']
-    #                     seed['end'] += instruction['mutation']
-    #                     handled_seeds.append(seed)
-    #                 else:
-    #                     # The seed is too large, split it! TODO
-    #                     seeds.append({
-    #                         'start': seed['start'],
-    #                         'end': instruction['end']
-    #                     })
-    #                     seeds.append({
-    #                         'start': instruction['end'] + 1,
-    #                         'end': seed['end']
-    #                     })
-    #                 seed_handled = True
-    #         if not seed_handled:
-    #             handled_seeds.append(seed)
-    #     seeds = handled_seeds
