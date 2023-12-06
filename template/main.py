@@ -23,8 +23,10 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         raise Exception('Please pass a puzzle part as argument')
 
-    filename = f'{'test_' if len(sys.argv) > 2 and sys.argv[2].lower() in [
-        'test', '-t', 't'] else ''}input.txt'
+    if len(sys.argv) > 2 and sys.argv[2].lower() in ['test', '-t', 't']:
+        filename = f'test_{sys.argv[1].lower()}.txt'
+    else:
+        filename = 'input.txt'
     content = parse_input(filename)
 
     print(f'\nTesting part {sys.argv[1].upper()} on {filename}\n')
