@@ -13,6 +13,7 @@ def a(content: [str]) -> None:
             'R': right
         }
 
+    current = 'AAA'
     steps = 0
     while True:
         for direction in directions:
@@ -53,7 +54,7 @@ def b_1(content: [str]) -> None:
                 return
 
 
-def b(content: [str]) -> None:
+def b_2(content: [str]) -> None:
     directions = list(content[0])
     instructions = {}
     current = []
@@ -94,6 +95,66 @@ def b(content: [str]) -> None:
             if all(z_list):
                 print(steps + step + 1)
                 return
+        steps += step_size
+
+
+def b(content: [str]) -> None:
+    directions = list(content[0])
+    instructions = {}
+    current = []
+    for instruction in content[2:]:
+        source, target = instruction.split(" = ")
+        left, right = target[1:-1].split(", ")
+        instructions[source] = {
+            'L': left,
+            'R': right
+        }
+        if source[2] == 'A':
+            current.append(source)
+
+    # values = {}
+    # start_end = {}
+
+    # for start in instructions.keys():
+    #     # values[start] = [start[2] == 'Z']
+    #     values[start] = []
+
+    maps = {
+
+    }
+
+    for start in instructions.keys():
+        location = start
+        z_indices = []
+        for index, direction in enumerate(directions):
+            location = instructions[location][direction]
+            if location[2] == 'Z':
+                z_indices.append(index)
+
+        maps[start] = {
+            'end': location,
+            'zs': z_indices
+        }
+
+    print(maps)
+
+    steps = 0
+    step_size = len(directions)
+    while True:
+        zs = [0 for _ in range(step_size)]
+        # print(f'\nCurrent: {current}')
+        # print(f'Current step: {steps}')
+        for i in range(len(current)):
+            # print(maps[current[i]]['zs'])
+            for z in maps[current[i]]['zs']:
+                zs[z] += 1
+                if zs[z] == len(current):
+                    print('Match!')
+                    print(len(current))
+                    print(zs)
+                    print(steps + z + 1)
+                    return
+            current[i] = maps[current[i]]['end']
         steps += step_size
 
 ############################
