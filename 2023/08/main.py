@@ -1,5 +1,5 @@
 import sys
-import numpy as np
+from functools import reduce
 
 
 def a(content: [str]) -> None:
@@ -98,7 +98,7 @@ def b_2(content: [str]) -> None:
         steps += step_size
 
 
-def b(content: [str]) -> None:
+def b_3(content: [str]) -> None:
     directions = list(content[0])
     instructions = {}
     current = []
@@ -156,6 +156,55 @@ def b(content: [str]) -> None:
                     return
             current[i] = maps[current[i]]['end']
         steps += step_size
+
+
+def gcd(a, b):
+    while b != 0:
+        t = b
+        b = a % b
+        a = t
+    return a
+
+
+def lcm(a, b):
+    return a / gcd(a, b) * b
+
+
+def b(content):
+    directions = list(content[0])
+    instructions = {}
+    current = []
+    for instruction in content[2:]:
+        source, target = instruction.split(" = ")
+        left, right = target[1:-1].split(", ")
+        instructions[source] = {
+            'L': left,
+            'R': right
+        }
+        if source[2] == 'A':
+            current.append(source)
+    print(current)
+
+    z_steps = []
+    for node in current:
+        steps = 0
+        z_found = False
+        while not z_found:
+            for direction in directions:
+                if z_found:
+                    break
+                # print(node)
+                node = instructions[node][direction]
+                # print(f'{node}\n')
+                steps += 1
+                if node[2] == 'Z':
+                    z_found = True
+        z_steps.append(steps)
+    print(z_steps)
+
+    # LCM over z_steps
+    print(int(reduce(lcm, z_steps)))
+
 
 ############################
 ### Start of boilerplate ###
