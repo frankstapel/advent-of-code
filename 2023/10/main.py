@@ -43,8 +43,6 @@ def a(content: [str]) -> None:
 
     # Follow the path and count the steps until S is found again
     previous = s
-    # Manual selection of first step :')
-    current = (s[0], s[1] + 1)
     try:
         if grid[s[0]][s[1] + 1] in ['|', '7', 'F']:
             current = (s[0], s[1] + 1)
@@ -92,10 +90,6 @@ def expand(x: int, y: int) -> (int, int):
     return 2 * x + 1, 2 * y + 1
 
 
-def shrink(x: int, y: int) -> (int, int):
-    return int(x / 2 - 1), int(y / 2 - 1)
-
-
 def b(content: [str]) -> None:
     # Create a 2d grid traversable with math coordinates
     grid = [list(line) for line in content]
@@ -103,7 +97,7 @@ def b(content: [str]) -> None:
     grid = np.array([line[::-1] for line in grid])
 
     # Create an expanded target 2d array
-    expanded_grid = np.zeros(expand(len(grid), len(grid[0])))
+    expanded_grid = np.ones(expand(len(grid), len(grid[0])))
 
     # Find S
     for x in range(len(grid)):
@@ -140,8 +134,6 @@ def b(content: [str]) -> None:
 
     # Follow the path and count the steps until S is found again
     previous = s
-    # Manual selection of first step :')
-    current = (s[0], s[1] + 1)
     try:
         if grid[s[0]][s[1] + 1] in ['|', '7', 'F']:
             current = (s[0], s[1] + 1)
@@ -163,10 +155,8 @@ def b(content: [str]) -> None:
     except:
         pass
 
-    pipeline = [expand(current[0], current[1])]
-    step = 1
-    expanded_grid[pipeline[0][0]][pipeline[0][1]] = 1
-    step += 1
+    expanded_start = expand(current[0], current[1])
+    expanded_grid[expanded_start[0]][expanded_start[1]] = 0
     while True:
         if grid[current[0]][current[1]] == 'S':
             break
@@ -192,52 +182,41 @@ def b(content: [str]) -> None:
             current = (current[0] + first[0], current[1] + first[1])
             # Fill the expanded grid
             expanded_current = expand(current[0], current[1])
-        pipeline.append(expanded_filler)
-        pipeline.append(expanded_current)
-        expanded_grid[expanded_filler[0]][expanded_filler[1]] = step
-        step += 1
-        expanded_grid[expanded_current[0]][expanded_current[1]] = step
-        step += 1
+        expanded_grid[expanded_filler[0]][expanded_filler[1]] = 0
+        expanded_grid[expanded_current[0]][expanded_current[1]] = 0
 
-    # Debug time! Write to output
-    np.savetxt('pipeline.txt', expanded_grid, fmt='%8i')
+    # Connect the end to the start!
+    connection = (
+        (expanded_current[0] + expanded_start[0]) // 2,
+        (expanded_current[1] + expanded_start[1]) // 2
+    )
+    expanded_grid[connection[0]][connection[1]] = 0
 
-    print('Time to fill!')
     queue = [(0, 0)]
-    passed = []
     sides = [(0, 1), (0, -1), (1, 0), (-1, 0)]
     while queue:
         current = queue.pop()
         for side in sides:
             node_to_check = (current[0] + side[0], current[1] + side[1])
             if (
-                not node_to_check in passed
-                and not node_to_check in queue
-                and not node_to_check in pipeline
-                and node_to_check[0] >= 0
+                node_to_check[0] >= 0
                 and node_to_check[0] < len(expanded_grid)
                 and node_to_check[1] >= 0
                 and node_to_check[1] < len(expanded_grid[0])
+                and expanded_grid[node_to_check[0]][node_to_check[1]] > 0
+                and not node_to_check in queue
             ):
                 # This node is outside! Add it to the queue
                 queue.append(node_to_check)
-                # Add it to passed
-        passed.append(current)
+        expanded_grid[current[0]][current[1]] = 0
 
-    # Loop over the original plan and count all items not in the pipeline and not outside
-    inside_count = 0
-    print(len(passed))
-    print(len(pipeline))
-    total_count = 0
+    # Loop over the original plan and count all 0s
+    count = 0
     for x in range(len(grid)):
         for y in range(len(grid[x])):
-            total_count += 1
             expanded = expand(x, y)
-            # print(expanded)
-            if not expanded in pipeline and not expanded in passed:
-                inside_count += 1
-    print(total_count)
-    print(inside_count)
+            count += expanded_grid[expanded[0]][expanded[1]]
+    print(int(count))
 
 
 ############################
