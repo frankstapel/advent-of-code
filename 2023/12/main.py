@@ -2,21 +2,37 @@ import sys
 
 
 def f(springs: str, broken: str) -> int:
-    # print('\nBranching...')
+    print('Branching...')
     current = 0
+    if broken == '[]':
+        if '#' in springs:
+            return 0
+        else:
+            return 1
+
     broken = [int(x) for x in broken[1:-1].split(', ')]
+
+    if len(springs) < sum(broken) + len(broken) - 1:
+        return 0
+
     possibilities = 0
     while springs:
-        print()
+        if not broken:
+            if '#' in springs:
+                return 0
+            else:
+                return 1
+
         spring = springs[0]
         springs = springs[1:]
-        print(spring, springs, broken, current)
+        print(current, spring, springs, broken, possibilities)
         if spring == '#':
             # Add one to the current solution, check if it's still possible, else return 0
             current += 1
             if current > broken[0]:
-                print('#, no match')
+                # print('#, no match')
                 return possibilities
+            # print('#, increasing current')
         if spring == '.':
             # Check if there is a current, otherwise just continue
             if current > 0:
@@ -26,8 +42,9 @@ def f(springs: str, broken: str) -> int:
                     broken = broken[1:]
                 else:
                     # No match, return 0
-                    print('., no match')
+                    # print('., no match')
                     return possibilities
+            # print('. after .')
         if spring == '?':
             # Suppose it's a '#'
             if current + 1 > broken[0]:
@@ -36,10 +53,10 @@ def f(springs: str, broken: str) -> int:
                     # Current matches the first broken exactly!
                     current = 0
                     broken = broken[1:]
-                    print('?, must be ., matches')
+                    # print('?, must be ., matches')
                     return possibilities + f(springs, str(broken))
                 else:
-                    print('?, must be ., no match')
+                    # print('?, must be ., no match')
                     return possibilities
             else:
                 # It can be a '#', can it be a '.'?
@@ -47,11 +64,14 @@ def f(springs: str, broken: str) -> int:
                     # Current matches the first broken exactly!
                     current = 0
                     broken = broken[1:]
-                    print('? can be both, branching')
+                    # print('? can be both, branching')
                     possibilities += f(springs, str(broken))
                 # Continue the current course, but add the possibility to the total where it is a '.'
                 else:
-                    print('?, must be #')
+                    if current == 0:
+                        # print('?, branching . first')
+                        possibilities += f(springs, str(broken))
+                    # print('?, must be #')
                 current += 1
     possibilities += 1
     return possibilities
@@ -60,37 +80,13 @@ def f(springs: str, broken: str) -> int:
 def a(content: [str]) -> None:
     total = 0
     for line in content:
-        print(f'\n\n\nSTARTING {line}')
+        print(f'\n\n\n\n\n\nSTARTING {line}')
         springs = line.split()[0]
         broken = [int(x) for x in line.split()[1].split(',')]
         x = f(springs, str(broken))
         print(x)
         total += x
     print(total)
-    # mapping = []
-    # current = ''
-    # for spring in springs:
-    #     if spring == '.':
-    #         if current:
-    #             # First '.' found! Append the current solution to the mapping
-    #             mapping.append(current)
-    #             current = ''
-    #     else:
-    #         current += spring
-    # if current:
-    #     mapping.append(current)
-    # print(mapping, broken)
-
-    # Few options now
-    # 1. The number of parts in the list equal the number of working -> easy to calculate
-    # 2. Dynamic programming?
-    # 3. Recursion? Recursion!
-
-    # Dynamic programming!
-    # We need to generate solutions for the different possibilities, this can be done with dynamic programming
-    # There are two options: # and ?
-    # If the ? is a .: split the input!
-    # If the ? is a #, add it to the current count!
 
 
 def b(content: [str]) -> None:
