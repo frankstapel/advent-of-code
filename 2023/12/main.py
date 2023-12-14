@@ -1,96 +1,73 @@
 import sys
+from functools import cache
 
 
-def f(springs: str, broken: str) -> int:
-    print('Branching...')
-    current = 0
+@cache # Bless Python for this function
+def calculate_possibilities(springs: str, broken: str, current: int = 0) -> int:
+    # Store broken as string so hashable function arguments can be cached!
+        
     if broken == '[]':
-        if '#' in springs:
-            return 0
-        else:
-            return 1
+        return 0 if '#' in springs else 1
 
     broken = [int(x) for x in broken[1:-1].split(', ')]
 
-    if len(springs) < sum(broken) + len(broken) - 1:
+    if len(springs) + current < sum(broken) + len(broken) - 1:
+        # Remaining springs are too few to fit broken
         return 0
 
-    possibilities = 0
     while springs:
         if not broken:
-            if '#' in springs:
-                return 0
-            else:
-                return 1
+            return 0 if '#' in springs else 1
 
-        spring = springs[0]
-        springs = springs[1:]
-        print(current, spring, springs, broken, possibilities)
+        spring, springs = springs[0], springs[1:]
+
         if spring == '#':
-            # Add one to the current solution, check if it's still possible, else return 0
+            # Add one to the current count
             current += 1
             if current > broken[0]:
-                # print('#, no match')
-                return possibilities
-            # print('#, increasing current')
-        if spring == '.':
-            # Check if there is a current, otherwise just continue
+                # Current count is not possible
+                return 0
+        elif spring == '.':
             if current > 0:
+                # There is a current to handle
                 if current == broken[0]:
-                    # Current matches the first broken exactly!
+                    # Current matches the first of broken exactly!
                     current = 0
                     broken = broken[1:]
                 else:
-                    # No match, return 0
-                    # print('., no match')
-                    return possibilities
-            # print('. after .')
-        if spring == '?':
-            # Suppose it's a '#'
-            if current + 1 > broken[0]:
-                # It can't be a '#', so it must be a '.'
-                if current == broken[0]:
-                    # Current matches the first broken exactly!
-                    current = 0
-                    broken = broken[1:]
-                    # print('?, must be ., matches')
-                    return possibilities + f(springs, str(broken))
-                else:
-                    # print('?, must be ., no match')
-                    return possibilities
-            else:
-                # It can be a '#', can it be a '.'?
-                if current > 0 and current == broken[0]:
-                    # Current matches the first broken exactly!
-                    current = 0
-                    broken = broken[1:]
-                    # print('? can be both, branching')
-                    possibilities += f(springs, str(broken))
-                # Continue the current course, but add the possibility to the total where it is a '.'
-                else:
-                    if current == 0:
-                        # print('?, branching . first')
-                        possibilities += f(springs, str(broken))
-                    # print('?, must be #')
-                current += 1
-    possibilities += 1
-    return possibilities
+                    # Current doesn't match
+                    return 0
+            elif len(springs) + current < sum(broken) + len(broken) - 1:
+                # Remaining springs are too few to fit broken
+                return 0
+        elif spring == '?':
+            # Time to split!
+            damaged = calculate_possibilities('#' + springs, str(broken), current)
+            operational = calculate_possibilities('.' + springs, str(broken), current)
+            return damaged + operational
+    
+    return 1
 
 
 def a(content: [str]) -> None:
-    total = 0
+    total_possibilities = 0
     for line in content:
-        print(f'\n\n\n\n\n\nSTARTING {line}')
         springs = line.split()[0]
-        broken = [int(x) for x in line.split()[1].split(',')]
-        x = f(springs, str(broken))
-        print(x)
-        total += x
-    print(total)
+        broken = str([int(x) for x in line.split()[1].split(',')])
+        possibilities = calculate_possibilities(springs, broken)
+        total_possibilities += possibilities
+    print(total_possibilities)
 
 
 def b(content: [str]) -> None:
-    print(content)
+    total_possibilities = 0
+    for line in content:
+        springs = '?'.join([line.split()[0] for _ in range(5)])
+        five_times_broken = ','.join([line.split()[1] for _ in range(5)])
+        broken = str([int(x) for x in five_times_broken.split(',')])
+        possibilities = calculate_possibilities(springs, broken)
+        total_possibilities += possibilities
+    print(total_possibilities)
 
 
 ############################
