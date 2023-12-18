@@ -4,7 +4,7 @@ import numpy as np
 
 def a(content: [str]) -> None:
     current = (0, 0)
-    trench = {}
+    trench = set()
     moves = {
         'U': (0, 1),
         'D': (0, -1),
@@ -17,17 +17,15 @@ def a(content: [str]) -> None:
 
     # Dig the trench
     for line in content:
-        direction, length, color = line.split()
+        direction, length, _ = line.split()
         for _ in range(int(length)):
             current = (current[0] + moves[direction][0], current[1] + moves[direction][1])
             min_x = min(min_x, current[0])
             min_y = min(min_y, current[1])
             max_x = max(max_x, current[0])
             max_y = max(max_y, current[1])
-            trench[current] = color[2:-1]
+            trench.add(current)
             volume += 1
-    
-    grid = [['.' for _ in range(min_x, max_x + 1)] for _ in range(min_y, max_y + 1)]
 
     # Dig the interior
     for y in range(min_y, max_y + 1):
@@ -35,65 +33,69 @@ def a(content: [str]) -> None:
         last_trench = -np.inf
         first_trench = None
         for x in range(min_x, max_x + 1):
-            if (x, y) in trench.keys():
+            if (x, y) in trench:
                 if last_trench != x - 1:
-                    # First point of the trench (L)
-                    first_trench = (x, y + 1) in trench.keys()
-                # else:
+                    first_trench = (x, y + 1) in trench
                 last_trench = x
-                grid[y - min_y][x - min_x] = '#'
             else:
                 # Passed a trench, check if we need to flip inside
-                if last_trench == x - 1 and ((x - 2, y) not in trench.keys() or first_trench is not ((x - 1, y + 1) in trench.keys())):
+                if last_trench == x - 1 and ((x - 2, y) not in trench or first_trench is not ((x - 1, y + 1) in trench)):
                     inside = not inside
-
                 if inside:
                     volume += 1
-                    grid[y - min_y][x - min_x] = '+'
-
-    with open('output.txt', 'w') as file:
-        for y, line in enumerate(grid):
-            file.write(''.join(line))
-            file.write('\n')
-
     print(volume)
 
 
 def b(content: [str]) -> None:
-    current = (0, 0)
-    corners = []
     moves = {
         'U': (0, 1),
         'D': (0, -1),
         'L': (-1, 0),
         'R': (1, 0)
     }
+    
     directions = {
         '0': 'R',
         '1': 'D',
         '2': 'L',
         '3': 'U'
     }
-    volume = 0
-
-    # Determine corners
+    
+    transitions = {
+        ('U', 'R'): (0, 1),
+        ('R', 'U'): (0, 1),
+        ('R', 'D'): (1, 1),
+        ('D', 'R'): (1, 1),
+        ('D', 'L'): (1, 0),
+        ('L', 'D'): (1, 0),
+        ('L', 'U'): (0, 0),
+        ('U', 'L'): (0, 0),
+    }
+    
+    corners = []
+    current = (0, 0)
     for line in content:
         instruction = line.split()[2][2:-1]
         direction = directions[instruction[5]]
         length = int(instruction[:5], 16)
         current = (current[0] + moves[direction][0] * length, current[1] + moves[direction][1] * length)
-        corners.append(current)
+        corners.append((current, direction))
 
-    # Apply the shoelace formula
-    previous = corners[-1]
-    for corner in corners:
-        volume += previous[0] * corner[1] - previous[1] * corner[0]
-        previous = corner
-
+    # Expand the corners so trenches are fully taken into account in surface calculation
+    border_corners = []
+    for index, (corner, direction) in enumerate(corners):
+        next_direction = corners[index + 1][1] if index < len(corners) - 1 else corners[0][1]
+        transition = transitions[(direction, next_direction)]
+        border_corners.append((corner[0] + transition[0], corner[1] + transition[1]))
+    
+    # Apply the shoelace formula to calculate the surface between the border corners
+    volume = 0
+    current = border_corners[-1]
+    for corner in border_corners:
+        volume += current[0] * corner[1] - current[1] * corner[0]
+        current = corner
+    
     print(abs(int(volume * 0.5)))
-
-    # TRUE 952408144115
-    # MINE 952404941483
 
 
 ############################
