@@ -61,7 +61,32 @@ def a(content: [str]) -> None:
 
 
 def b(content: [str]) -> None:
-    print(content)
+    current = (0, 0)
+    corners = []
+    moves = {
+        'U': (0, 1),
+        'D': (0, -1),
+        'L': (-1, 0),
+        'R': (1, 0)
+    }
+    directions = {
+        '0': 'R',
+        '1': 'D',
+        '2': 'L',
+        '3': 'U'
+    }
+    volume = 0
+
+    # Dig the trench
+    for line in content:
+        instruction = line.split()[2][2:-1]
+        direction = directions[instruction[5]]
+        length = int(instruction[:5], 16)
+        current = (current[0] + moves[direction][0] * length, current[1] + moves[direction][1] * length)
+        corners.append(current)
+        print(current)
+
+    print(volume)
 
 
 ############################
