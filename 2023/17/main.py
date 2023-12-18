@@ -1,150 +1,18 @@
 import sys
 import numpy as np
+import heapq
 
 
-def working_normal_dijkstra(content: [str]) -> None:
-    grid = {}
-    queue = []
-
-    for y, line in enumerate(content):
-        for x, cost in enumerate(line):
-            grid[(x, y)] = {
-                'cost': int(cost),
-                'distance': np.inf,
-                'previous': []
-            }
-            queue.append((x, y))
-    
-    grid[(0, 0)]['distance'] = 0
-    permutations = [
-        (0, 1),
-        (0, -1),
-        (1, 0),
-        (-1, 0)
-    ]
-
-    while queue:
-        # Pick the node with the lowest current distance
-        node = None
-        min_distance = np.inf
-        for queue_node in queue:
-            if grid[queue_node]['distance'] <= min_distance:
-                min_distance = grid[queue_node]['distance']
-                node = queue_node
-        queue.remove(node)
-        
-        # Go over the node's neighbors
-        for permutation in permutations:
-            neighbor = (node[0] + permutation[0], node[1] + permutation[1])
-            if not neighbor in queue:
-                continue
-
-            new_distance = grid[node]['distance'] + grid[neighbor]['cost']
-
-            if new_distance < grid[neighbor]['distance']:
-                grid[neighbor]['distance'] = new_distance
-                grid[neighbor]['previous'] = grid[node]['previous'] + [node]
-    
-    print(grid[(len(content[0]) - 1, len(content) - 1)]['distance'])
-    print(grid[(len(content[0]) - 1, len(content) - 1)]['previous'])
-
-
-def brainfart(content: [str]) -> None:
-    grid = {}
-    queue = []
-    max_step_distance = 3
-    permutations = [
-        (0, 1),
-        (0, -1),
-        (1, 0),
-        (-1, 0)
-    ]
-
-    for y, line in enumerate(content):
-        for x, cost in enumerate(line):
-            grid[(x, y)] = {
-                'cost': int(cost),
-                'min_distance': np.inf
-            }
-            for permutation in permutations:
-                grid[(x, y)][permutation] = [np.inf for _ in range(max_step_distance)]
-            queue.append((x, y))
-
-    for permutation in permutations:
-        grid[(0, 0)]['min_distance'] = 0
-        grid[(0, 0)][permutation][0] = 0
-        # [0 for _ in range(max_step_distance)]
-
-    for key, value in grid.items():
-        print(key, value)
-
-    count = 0
-    while queue and count < 5:
-        count += 1
-        # Pick the node with the lowest current distance
-        node = None
-        min_distance = np.inf
-        for queue_node in queue:
-            if grid[queue_node]['min_distance'] <= min_distance:
-                min_distance = grid[queue_node]['min_distance']
-                node = queue_node
-        queue.remove(node)
-
-        print(node)
-        
-        # Go over the node's neighbors
-        for permutation in permutations:
-            # Determine the neighbor node
-            neighbor = (node[0] + permutation[0], node[1] + permutation[1])
-            
-            # Continue if the neighbor doesn't exist
-            if not neighbor in grid.keys():
-                continue
-
-            if not neighbor in queue:
-                continue
-
-            max_distance = grid[node][permutation][-1]
-            print(max_distance)
-
-            # Check if there is still room at the end of the permutation
-            if max_distance != np.inf and max_distance:
-                print('x')
-                continue
-
-            # Calculate the new distances
-            new_distances = [np.inf] + [distance + grid[neighbor]['cost'] for distance in grid[node][permutation][:-1]]
-
-            print(new_distances)
-            print(grid[neighbor][permutation])
-
-            for new_distance_index, new_distance in enumerate(new_distances):
-                if new_distance < grid[neighbor][permutation][new_distance_index]:
-                    grid[neighbor][permutation][new_distance_index] = new_distance
-
-            print(grid[neighbor][permutation])
-
-            # Update the minimum distance for the neighbor node
-            grid[neighbor]['min_distance'] = min([grid[neighbor]['min_distance']] + grid[neighbor][permutation])
-    
-    print(grid[(len(content[0]) - 1, len(content) - 1)]['min_distance'])
+def manhattan_distance(a, b) -> int:
+    return abs(b[0] - a[0]) + abs(b[1] - a[1])
 
 
 def a(content: [str]) -> None:
     grid = {}
     queue = []
-
-    for y, line in enumerate(content):
-        for x, cost in enumerate(line):
-            grid[(x, y)] = {
-                'cost': int(cost),
-                'distance': np.inf,
-                'previous': [],
-                'previous_permutations': []
-            }
-            queue.append((x, y))
-    
-    grid[(0, 0)]['distance'] = 0
+    max_step_distance = 3
+    start = (0, 0)
+    end = (len(content[0]) - 1, len(content) - 1)
     permutations = [
         (0, 1),
         (0, -1),
@@ -152,50 +20,81 @@ def a(content: [str]) -> None:
         (-1, 0)
     ]
 
-    while queue:
+    for y, line in enumerate(content):
+        for x, cost in enumerate(line):
+            heuristic = manhattan_distance((x, y), end)
+            if (x, y) == start:
+                key = (start, (0, 0), 0)
+                grid[key] = {
+                    'cost': int(cost),
+                    'distance': 0,
+                    'heuristic': heuristic,
+                    'f_score': heuristic,
+                    'previous': []
+                }
+                queue.append(key)
+            else:
+                for permutation in permutations:
+                    for step in range(max_step_distance):
+                        key = ((x, y), permutation, step)
+                        grid[key] = {
+                            'cost': int(cost),
+                            'distance': np.inf,
+                            'heuristic': heuristic,
+                            'f_score': np.inf,
+                            'previous': []
+                        }
+                        queue.append(key)
+
+    solution_found = False
+    while queue and not solution_found:
         # Pick the node with the lowest current distance
         node = None
-        min_distance = np.inf
+        min_f_score = np.inf
         for queue_node in queue:
-            if grid[queue_node]['distance'] <= min_distance:
-                min_distance = grid[queue_node]['distance']
+            if grid[queue_node]['f_score'] <= min_f_score:
+                min_f_score = grid[queue_node]['f_score']
                 node = queue_node
         queue.remove(node)
         
         # Go over the node's neighbors
         for permutation in permutations:
-            neighbor = (node[0] + permutation[0], node[1] + permutation[1])
+            # Don't go directly back!
+            backwards_direction = (node[1][0] * -1, node[1][1] * -1)
+            if permutation == backwards_direction:
+                continue
 
-            # if not neighbor in queue:
-            #     continue
+            neighbor_position = (node[0][0] + permutation[0], node[0][1] + permutation[1])
+            steps = node[2] + 1 if permutation == node[1] else 0
+            neighbor = (neighbor_position, permutation, steps)
 
-            if not neighbor in grid.keys():
+            if not neighbor in queue:
                 continue
 
             new_distance = grid[node]['distance'] + grid[neighbor]['cost']
 
-            # Check if this will be the fourth step in a direction, if so, continue
-            equal_permutations = 0
-            for previous_permutation in grid[node]['previous_permutations'][-3:]:
-                equal_permutations += 1 if previous_permutation == permutation else 0
-
-            if equal_permutations == 3:
-                continue
-
             if new_distance < grid[neighbor]['distance']:
                 grid[neighbor]['distance'] = new_distance
+                grid[neighbor]['f_score'] = grid[neighbor]['distance'] + grid[neighbor]['heuristic']
                 grid[neighbor]['previous'] = grid[node]['previous'] + [node]
-                grid[neighbor]['previous_permutations'] = grid[node]['previous_permutations'] + [permutation]
 
-                # Neighbor changed! Add it to the queue if it's not in there
-                if not neighbor in queue:
-                    queue.append(neighbor)
+                if neighbor[0] == end:
+                    solution_found = True
+                    print(grid[neighbor]['distance'])
     
-    print(grid[(len(content[0]) - 1, len(content) - 1)]['distance'])
-    print(grid[(len(content[0]) - 1, len(content) - 1)]['previous'])
+    # min_distance = np.inf
+    # min_key = None
+    # for key in grid.keys():
+    #     if key[0] == (len(content[0]) - 1, len(content) - 1):
+    #         min_distance = min(min_distance, grid[key]['distance'])
+    #         if min_distance == grid[key]['distance']:
+    #             min_key = key
+    
+    # for previous in grid[min_key]['previous']:
+    #     print(previous[0])
 
-    # This might be a step in the right direction. The problem is that the algorithm looks for a solution too locally.
-    # It abides by the current rules, but could find a better solution if history was properly managed
+    # print(min_distance)
+    # # print(grid[(len(content[0]) - 1, len(content) - 1)]['previous'])
 
 
 def b(content: [str]) -> None:
