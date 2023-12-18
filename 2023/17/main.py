@@ -1,6 +1,6 @@
 import sys
 import numpy as np
-import heapq
+from queue import PriorityQueue
 
 
 def manhattan_distance(a, b) -> int:
@@ -9,7 +9,7 @@ def manhattan_distance(a, b) -> int:
 
 def a(content: [str]) -> None:
     grid = {}
-    queue = []
+    queue = PriorityQueue()
     max_step_distance = 3
     start = (0, 0)
     end = (len(content[0]) - 1, len(content) - 1)
@@ -30,9 +30,9 @@ def a(content: [str]) -> None:
                     'distance': 0,
                     'heuristic': heuristic,
                     'f_score': heuristic,
-                    'previous': []
+                    # 'previous': []
                 }
-                queue.append(key)
+                queue.put((heuristic, key))
             else:
                 for permutation in permutations:
                     for step in range(max_step_distance):
@@ -42,20 +42,13 @@ def a(content: [str]) -> None:
                             'distance': np.inf,
                             'heuristic': heuristic,
                             'f_score': np.inf,
-                            'previous': []
+                            # 'previous': []
                         }
-                        queue.append(key)
+                        queue.put((np.inf, key))
 
-    solution_found = False
-    while queue and not solution_found:
+    while queue:
         # Pick the node with the lowest current distance
-        node = None
-        min_f_score = np.inf
-        for queue_node in queue:
-            if grid[queue_node]['f_score'] <= min_f_score:
-                min_f_score = grid[queue_node]['f_score']
-                node = queue_node
-        queue.remove(node)
+        node = queue.get()[1]
         
         # Go over the node's neighbors
         for permutation in permutations:
@@ -68,33 +61,21 @@ def a(content: [str]) -> None:
             steps = node[2] + 1 if permutation == node[1] else 0
             neighbor = (neighbor_position, permutation, steps)
 
-            if not neighbor in queue:
+            if not neighbor in grid.keys():
                 continue
 
             new_distance = grid[node]['distance'] + grid[neighbor]['cost']
-
             if new_distance < grid[neighbor]['distance']:
                 grid[neighbor]['distance'] = new_distance
                 grid[neighbor]['f_score'] = grid[neighbor]['distance'] + grid[neighbor]['heuristic']
-                grid[neighbor]['previous'] = grid[node]['previous'] + [node]
+                # grid[neighbor]['previous'] = grid[node]['previous'] + [node]
+
+                # Add new neighbor to the priority queue
+                queue.put((grid[neighbor]['f_score'], neighbor))
 
                 if neighbor[0] == end:
-                    solution_found = True
                     print(grid[neighbor]['distance'])
-    
-    # min_distance = np.inf
-    # min_key = None
-    # for key in grid.keys():
-    #     if key[0] == (len(content[0]) - 1, len(content) - 1):
-    #         min_distance = min(min_distance, grid[key]['distance'])
-    #         if min_distance == grid[key]['distance']:
-    #             min_key = key
-    
-    # for previous in grid[min_key]['previous']:
-    #     print(previous[0])
-
-    # print(min_distance)
-    # # print(grid[(len(content[0]) - 1, len(content) - 1)]['previous'])
+                    return
 
 
 def b(content: [str]) -> None:
