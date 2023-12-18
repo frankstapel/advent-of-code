@@ -78,7 +78,7 @@ def a(content: [str]) -> None:
 def b(content: [str]) -> None:
     grid = {}
     queue = PriorityQueue()
-    min_step_distance = 4
+    min_step_distance = 3 # 4 - 1
     max_step_distance = 10
     start = (0, 0)
     end = (len(content[0]) - 1, len(content) - 1)
@@ -115,11 +115,12 @@ def b(content: [str]) -> None:
                         }
                         queue.put((np.inf, key))
 
-    while queue:
-        print(queue.qsize())
+    distances = []
+    while queue.qsize() > 0:
         # Pick the node with the lowest current distance
         node = queue.get()[1]
         
+        # Determine the valid neighbors for the current position
         if node[2] < min_step_distance:
             # If we haven't taken 4 steps, we must continue in this direction
             valid_permutations = [node[1]]
@@ -129,15 +130,9 @@ def b(content: [str]) -> None:
                 backwards_direction = (node[1][0] * -1, node[1][1] * -1)
                 if permutation != backwards_direction:
                     valid_permutations.append(permutation)
-
-
         # Go over the node's neighbors
         for permutation in valid_permutations:
             # Don't go directly back!
-            # backwards_direction = (node[1][0] * -1, node[1][1] * -1)
-            # if permutation == backwards_direction:
-            #     continue
-
             neighbor_position = (node[0][0] + permutation[0], node[0][1] + permutation[1])
             steps = node[2] + 1 if permutation == node[1] else 0
             neighbor = (neighbor_position, permutation, steps)
@@ -154,9 +149,8 @@ def b(content: [str]) -> None:
                 # Add new neighbor to the priority queue
                 queue.put((grid[neighbor]['f_score'], neighbor))
 
-                if neighbor[0] == end:
-                    for previous in grid[neighbor]['previous']:
-                        print(previous[0])
+                if neighbor[0] == end and neighbor[2] >= min_step_distance:
+                    distances.append(grid[neighbor]['distance'])
                     print(grid[neighbor]['distance'])
                     return
 
