@@ -1,6 +1,5 @@
 import sys
 import numpy as np
-from tqdm import tqdm
 
 
 def a(content: [str]) -> None:
@@ -28,7 +27,7 @@ def a(content: [str]) -> None:
             trench[current] = color[2:-1]
             volume += 1
     
-    grid = [['.' for x in range(min_x, max_x + 1)] for y in range(min_y, max_y + 1)]
+    grid = [['.' for _ in range(min_x, max_x + 1)] for _ in range(min_y, max_y + 1)]
 
     # Dig the interior
     for y in range(min_y, max_y + 1):
@@ -77,6 +76,9 @@ def b(content: [str]) -> None:
     }
     volume = 0
 
+    min_x, min_y = np.inf, np.inf
+    max_x, max_y = -np.inf, -np.inf
+
     # Dig the trench
     for line in content:
         instruction = line.split()[2][2:-1]
@@ -84,8 +86,13 @@ def b(content: [str]) -> None:
         length = int(instruction[:5], 16)
         current = (current[0] + moves[direction][0] * length, current[1] + moves[direction][1] * length)
         corners.append(current)
+        min_x = min(min_x, current[0])
+        min_y = min(min_y, current[1])
+        max_x = max(max_x, current[0])
+        max_y = max(max_y, current[1])
         print(current)
 
+    # Loop over all rows and calculate 
     print(volume)
 
 
