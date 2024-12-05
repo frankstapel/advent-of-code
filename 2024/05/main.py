@@ -57,9 +57,6 @@ def b(content: [str]) -> None:
                             break
                 passed_numbers.add(number)
             if not valid:
-                # print()
-                # print(numbers)
-                # print(previous_numbers)
                 dependencies = {}
                 for number in numbers:
                     dependencies[number] = set()
