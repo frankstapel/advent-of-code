@@ -8,14 +8,17 @@ def a(content: [str]) -> None:
         answer, inputs = line.split(": ")
         answer = int(answer)
         inputs = [int(x) for x in inputs.split(" ")]
+
         current_values = set()
         current_values.add(inputs[0])
+
         for input in inputs[1:]:
             new_values = set()
             for value in current_values:
                 new_values.add(value + input)
                 new_values.add(value * input)
             current_values = new_values
+
         if answer in current_values:
             correct_results.append(answer)
 
@@ -29,8 +32,10 @@ def b(content: [str]) -> None:
         answer, inputs = line.split(": ")
         answer = int(answer)
         inputs = [int(x) for x in inputs.split(" ")]
+
         current_values = set()
         current_values.add(inputs[0])
+
         for input in inputs[1:]:
             new_values = set()
             for value in current_values:
@@ -38,6 +43,7 @@ def b(content: [str]) -> None:
                 new_values.add(value * input)
                 new_values.add(int(str(value) + str(input)))
             current_values = new_values
+
         if answer in current_values:
             correct_results.append(answer)
 
