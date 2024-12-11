@@ -52,7 +52,7 @@ def b(content: [str]) -> None:
     content = map(int, content[0].split(" "))
     number_of_nodes = 0
     for i in content:
-        
+        pass
 
     print(number_of_nodes)
 
