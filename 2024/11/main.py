@@ -49,26 +49,20 @@ def a(content: [str]) -> None:
 
 
 @cache
-def calculate_single_value(value: int) -> int | tuple[int, int]:
-    if value == 0:
+def dive(value: int, depth: int) -> int:
+    if depth == 75:
         return 1
+
+    next_depth = depth + 1
+    if value == 0:
+        return dive(1, next_depth)
     elif len(str_value := str(value)) % 2 == 0:
         half = len(str_value) // 2
         first = int(str_value[:half])
         second = int(str_value[half:])
-        return first, second
+        return dive(first, next_depth) + dive(second, next_depth)
     else:
-        return value * 2024
-
-
-def dive(value, depth):
-    if depth == 40:
-        return 1
-    next_value = calculate_single_value(value)
-    if isinstance(next_value, tuple):
-        return dive(next_value[0], depth + 1) + dive(next_value[1], depth + 1)
-    else:
-        return dive(next_value, depth + 1)
+        return dive(value * 2024, next_depth)
 
 
 def b(content: [str]) -> None:
