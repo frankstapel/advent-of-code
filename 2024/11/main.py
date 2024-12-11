@@ -1,5 +1,5 @@
 import sys
-from functools import lru_cache
+from functools import cache
 
 
 class Node:
@@ -48,7 +48,7 @@ def a(content: [str]) -> None:
     print(number_of_nodes)
 
 
-@lru_cache(maxsize=None)
+@cache
 def calculate_single_value(value: int) -> int | tuple[int, int]:
     if value == 0:
         return 1
@@ -62,7 +62,7 @@ def calculate_single_value(value: int) -> int | tuple[int, int]:
 
 
 def dive(value, depth):
-    if depth == 25:
+    if depth == 40:
         return 1
     next_value = calculate_single_value(value)
     if isinstance(next_value, tuple):
