@@ -1,5 +1,5 @@
 import sys
-from tqdm import tqdm
+from functools import lru_cache
 
 
 class Node:
@@ -48,12 +48,34 @@ def a(content: [str]) -> None:
     print(number_of_nodes)
 
 
+@lru_cache(maxsize=None)
+def calculate_single_value(value: int) -> int | tuple[int, int]:
+    if value == 0:
+        return 1
+    elif len(str_value := str(value)) % 2 == 0:
+        half = len(str_value) // 2
+        first = int(str_value[:half])
+        second = int(str_value[half:])
+        return first, second
+    else:
+        return value * 2024
+
+
+def dive(value, depth):
+    if depth == 25:
+        return 1
+    next_value = calculate_single_value(value)
+    if isinstance(next_value, tuple):
+        return dive(next_value[0], depth + 1) + dive(next_value[1], depth + 1)
+    else:
+        return dive(next_value, depth + 1)
+
+
 def b(content: [str]) -> None:
     content = map(int, content[0].split(" "))
     number_of_nodes = 0
     for i in content:
-        pass
-
+        number_of_nodes += dive(i, 0)
     print(number_of_nodes)
 
 
