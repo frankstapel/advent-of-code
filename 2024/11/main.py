@@ -27,11 +27,9 @@ def a(content: [str]) -> None:
         print(i, number_of_nodes)
         current = head
         while current:
-            # str_value = str(current.value)
             if current.value == 0:
                 current.value = 1
             elif len(str_value := str(current.value)) % 2 == 0:
-                # print(str_value)
                 half = len(str_value) // 2
                 first = int(str_value[:half])
                 second = int(str_value[half:])
@@ -52,25 +50,19 @@ def a(content: [str]) -> None:
 def dive(value: int, depth: int) -> int:
     if depth == 75:
         return 1
-
-    next_depth = depth + 1
     if value == 0:
-        return dive(1, next_depth)
+        return dive(1, depth + 1)
     elif len(str_value := str(value)) % 2 == 0:
         half = len(str_value) // 2
         first = int(str_value[:half])
         second = int(str_value[half:])
-        return dive(first, next_depth) + dive(second, next_depth)
+        return dive(first, depth + 1) + dive(second, depth + 1)
     else:
-        return dive(value * 2024, next_depth)
+        return dive(value * 2024, depth + 1)
 
 
 def b(content: [str]) -> None:
-    content = map(int, content[0].split(" "))
-    number_of_nodes = 0
-    for i in content:
-        number_of_nodes += dive(i, 0)
-    print(number_of_nodes)
+    print(sum(dive(int(i), 0) for i in content[0].split(" ")))
 
 
 ############################
