@@ -117,7 +117,6 @@ def b(content: [str]) -> None:
                     next_direction = neighbor_order[
                         (current_index + i + 2) % 4
                     ]  # + 2 to circle clockwise from the backwards direction
-                    print(next_direction)
                     next_node = (
                         nodes[-1][0] + next_direction[0],
                         nodes[-1][1] + next_direction[1],
