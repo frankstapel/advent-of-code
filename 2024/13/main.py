@@ -39,8 +39,10 @@ def token_cost(button_a, button_b, remaining_prize, a_presses, b_presses) -> int
     if remaining_prize == (0, 0):
         return 0
 
+    x_prize, y_prize = remaining_prize
+
     # Check if the prize is negative
-    if remaining_prize[0] < 0 or remaining_prize[1] < 0:
+    if x_prize < 0 or y_prize < 0:
         return float("inf")
 
     # Check if the maximum depth has been reached
@@ -50,10 +52,9 @@ def token_cost(button_a, button_b, remaining_prize, a_presses, b_presses) -> int
     # Try pressing each button, return the cost of the cheapest path
     cost_a = 3
     cost_b = 1
-
     x_a, y_a = button_a
     x_b, y_b = button_b
-    x_prize, y_prize = remaining_prize
+
     total_cost_a = cost_a + token_cost(
         button_a, button_b, (x_prize - x_a, y_prize - y_a), a_presses + 1, b_presses
     )
