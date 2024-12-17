@@ -74,22 +74,19 @@ def execute_faster(a, b, c):
 
 
 def b(content: [str]) -> None:
-    a, b, c, instructions = parse_content(content)
-    a = 1
-    instructions = instructions[::-1]
-    x = 1
-    while True:
-        result = execute_faster(a, b, c)
-        if result[:x] == instructions[:x]:
-            a *= 8
-            x += 1
-            print(a)
-            print(result)
-            print(instructions)
-            if x == len(instructions):
-                break
-        else:
-            a += 1
+    # Solved with a hint, not counting this one towards leaderboard.
+    _, _, _, instructions = parse_content(content)
+    queue = [0]
+    while queue:
+        a = queue.pop(0)
+        for i in range(8):
+            next_a = (a << 3) + i
+            result = execute_faster(next_a, 0, 0)
+            if result == instructions[-len(result):]:
+                queue.append(next_a)
+                if result == instructions:
+                    print(next_a)
+                    return
 
 
 ############################
