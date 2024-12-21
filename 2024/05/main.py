@@ -63,7 +63,6 @@ def b(content: [str]) -> None:
                     for key, value in previous_numbers.items():
                         if number in value and key in all_numbers:
                             dependencies[number].add(key)
-
                 final_order = []
                 while len(final_order) < len(numbers):
                     for key, value in dependencies.items():
